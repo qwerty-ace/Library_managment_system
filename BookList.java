@@ -1,0 +1,494 @@
+import java.awt.EventQueue;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import java.awt.Color;
+import java.awt.Panel;
+import javax.swing.ImageIcon;
+import java.awt.Cursor;
+import java.awt.Font;
+
+
+import javax.swing.SwingConstants;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseMotionAdapter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import javax.swing.border.BevelBorder;
+import javax.swing.JScrollPane;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JSeparator;
+import javax.swing.JCheckBox;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+
+public class BookList  { 
+	static JFrame frame_bl;
+
+	List<String> lines = null;
+	JTextField txtSearchFor;
+	JLabel lblLogout ,lblIssuedBooks, label_1, lblBookList,lblReset, lblReturn;
+	private static JComboBox<String> comboBoxx ;
+	static int index;
+	private static boolean found=false, l=false;
+	DefaultTableModel searchmodel,Tablemodel;
+	DefaultTableModel sortingModel, sortingModel2;
+	static int row;
+	public static void main(String[] args){
+		new BookList();
+	}
+	
+		public BookList() {
+			initialize();
+		}
+
+		/**
+		 * Initialize the contents of the frame.
+		 */
+		void initialize() {
+			
+			System.out.print("BookList"+Books.All_info_Book);
+			frame_bl = new JFrame();
+			frame_bl.setVisible(true);
+			frame_bl.setBounds(100, 100, 1143, 760);
+			frame_bl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame_bl.getContentPane().setLayout(null);
+			frame_bl.setLocationRelativeTo(null);
+
+			Table.buildTable();
+			Table.table.setModel(Table.Tablemodel);	
+			
+			JScrollPane scrollPane = new JScrollPane(Table.table);
+			scrollPane.setOpaque(false);
+			scrollPane.setViewportBorder(null);
+			scrollPane.setBounds(72, 239, 770, 445);
+			scrollPane.setViewportView(Table.table);
+			
+			
+			Panel panel_1 = new Panel();
+			
+			final JCheckBox chckbxSort = new JCheckBox("SORT BY AUTHOR");
+			chckbxSort.setOpaque(false);
+			chckbxSort.setBorder(null);
+			chckbxSort.setFont(new Font("Century Gothic", Font.PLAIN, 11));
+			chckbxSort.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					if(chckbxSort.isSelected()){
+						TableSorting s=new TableSorting();
+						s.Table_sorting();
+						Books.Author_name_sorted.clear();
+					
+					} else{
+						Table.table.setModel(Table.Tablemodel);		      
+						
+					}
+				}
+			});
+			chckbxSort.setBounds(72, 125, 119, 23);
+			panel_1.add(chckbxSort);
+			
+			panel_1.add(scrollPane);
+			panel_1.setBackground(new Color(255,224,210));
+			panel_1.setBounds(223, 0, 904, 721);
+			frame_bl.getContentPane().add(panel_1);
+			panel_1.setLayout(null);
+			
+			
+			JSeparator separator = new JSeparator();
+			separator.setBackground(Color.BLACK);
+			separator.setBounds(125, 225, 587, 2);
+			panel_1.add(separator);
+			
+			
+			
+			String[] comboBoxItems={"Search by", "Author", "Book", "Year", "ISBN", "Publisher", "LCC"};
+			DefaultComboBoxModel<String> defcombo=new DefaultComboBoxModel<String>(comboBoxItems);
+			ActionListener actionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+			      index= comboBoxx.getSelectedIndex(); }};
+					comboBoxx = new JComboBox<String>();
+					comboBoxx.setFont(new Font("Century Gothic", Font.PLAIN, 11));
+					comboBoxx.setBorder(null);
+					comboBoxx.setOpaque(false);
+					comboBoxx.setBackground(Color.WHITE);
+					comboBoxx.setBounds(734, 122, 108, 28);
+					
+						comboBoxx.setModel(defcombo);
+						comboBoxx.addActionListener(actionListener);
+						panel_1.add(comboBoxx);
+				//	btnSearch.addActionListener(Listener);
+			
+			JLabel lblBookName = new JLabel("Find:");
+			lblBookName.setBounds(72, 184, 63, 28);
+			panel_1.add(lblBookName);
+			lblBookName.setFont(new Font("Century Gothic", Font.PLAIN, 18));
+			
+			JLabel lblWelcomeToThe = new JLabel("Welcome to the Library Management System!\r\n");
+			lblWelcomeToThe.setFont(new Font("Century751 BT", Font.ITALIC, 23));
+			lblWelcomeToThe.setBounds(20, 11, 476, 116);
+			panel_1.add(lblWelcomeToThe);
+			   
+		    txtSearchFor = new JTextField();
+		    txtSearchFor.addKeyListener(new KeyAdapter() {
+		    	@Override
+		    	public void keyPressed(KeyEvent e) {
+		    		if (e.getKeyCode()==KeyEvent.VK_ENTER){
+							int number=1;
+							DefaultTableModel searchmodel= new DefaultTableModel(Table.Column, 0);
+							
+							for(int i=0;i<(Books.All_info_Book.size())/7;i++){ 	row=Table.table.getSelectedRow();					
+								if((Books.All_info_Book.get(i*7+index-1).toLowerCase()).contains(txtSearchFor.getText().toLowerCase())){
+									searchmodel.addRow(new Object[]{number++, Books.All_info_Book.get(i*7), Books.All_info_Book.get(i*7+1),
+						 			Books.All_info_Book.get(i*7+2),
+						 			Books.All_info_Book.get(i*7+3),Books.All_info_Book.get(i*7+4),Books.All_info_Book.get(i*7+5),
+						 			Books.All_info_Book.get(i*7+6)}
+									
+									);
+						 	        	 found=true;}}
+					if(!found){JOptionPane.showMessageDialog(null, "no such book", "Error", JOptionPane.ERROR_MESSAGE);}
+					if(found){Table.table.setModel(searchmodel); row=Table.table.getSelectedRow(); System.out.print("rOW2"+row);	
+					Table.getTable(); }	    			
+		    		}
+		    	}
+		    });
+		    txtSearchFor.addMouseListener(new MouseAdapter() {
+		    	@Override
+		    	public void mouseClicked(MouseEvent e) {
+		    		txtSearchFor.setText("");
+		    	}
+		    });
+			txtSearchFor.setFont(new Font("Century Gothic", Font.PLAIN, 13));
+			txtSearchFor.setBorder(null);
+			txtSearchFor.setOpaque(false);
+			txtSearchFor.setBounds(125, 187, 587, 28);
+			txtSearchFor.setText("Ex: Java");
+			txtSearchFor.setForeground(Color.GRAY);
+			txtSearchFor.setColumns(10);
+			panel_1.add(txtSearchFor);
+			
+			final JCheckBox chckbxSortByBook = new JCheckBox("SORT BY BOOK");
+			chckbxSortByBook.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					if(chckbxSortByBook.isSelected()){
+						TableSorting k=new TableSorting();
+						k.Book_sorting();   Books.Book_name_sorted.clear();    }					
+				else{
+					Table.table.setModel(Table.Tablemodel);		      		
+				}
+			}});
+			
+			Panel panel_2 = new Panel();
+			panel_2.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					
+				}
+			});
+			panel_2.setLayout(null);
+			panel_2.setBackground(new Color(153, 153, 153));
+			panel_2.setBounds(734, 197, 108, 30);
+			panel_1.add(panel_2);
+			
+			JLabel lblSearch = new JLabel("Search");
+			lblSearch.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					int number=1;
+					DefaultTableModel searchmodel= new DefaultTableModel(Table.Column, 0);
+					for(int i=0;i<(Books.All_info_Book.size())/7;i++){ 						
+						if((Books.All_info_Book.get(i*7+index-1).toLowerCase()).contains(txtSearchFor.getText().toLowerCase())){
+							searchmodel.addRow(new Object[]{number++, Books.All_info_Book.get(i*7), Books.All_info_Book.get(i*7+1),
+				 			Books.All_info_Book.get(i*7+2),
+				 			Books.All_info_Book.get(i*7+3),Books.All_info_Book.get(i*7+4),Books.All_info_Book.get(i*7+5),
+				 			Books.All_info_Book.get(i*7+6)});
+				 	        	 found=true;}}
+			if(!found){JOptionPane.showMessageDialog(null, "no such book", "Error", JOptionPane.ERROR_MESSAGE);}
+			if(found){Table.table.setModel(searchmodel);
+			Table.getTable();}
+				}
+			});
+			lblSearch.setHorizontalAlignment(SwingConstants.CENTER);
+			lblSearch.setFont(new Font("Century Gothic", Font.PLAIN, 17));
+			lblSearch.setBounds(0, 0, 108, 30);
+			panel_2.add(lblSearch);
+			chckbxSortByBook.setOpaque(false);
+			chckbxSortByBook.setFont(new Font("Century Gothic", Font.PLAIN, 11));
+			chckbxSortByBook.setBorder(null);
+			chckbxSortByBook.setBounds(248, 125, 119, 23);
+			panel_1.add(chckbxSortByBook);
+			
+			Panel panel = new Panel();
+			panel.setBackground(Color.black);
+			panel.setBackground(new Color(0,0,0));
+			panel.setBounds(0, 0, 228, 721);
+			frame_bl.getContentPane().add(panel);
+			panel.setLayout(null);
+			
+			lblLogout = new JLabel("Back");
+			lblLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			lblLogout.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					lblLogout.setForeground(new Color(255, 255, 0));
+					lblLogout.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(255, 255, 102), null, null, null));
+				}
+				@Override
+				public void mouseExited(MouseEvent e) {
+					lblLogout.setForeground(new Color(204, 204, 204));
+					lblLogout.setBorder(null);
+				}
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					frame_bl.setVisible(false);
+					LibrarianMain back=new LibrarianMain(); //CHTO TO TUT NE TAK
+				}
+			});
+			lblLogout.setIcon(new ImageIcon("icons\\arrow-85-24.png"));
+			lblLogout.setHorizontalAlignment(SwingConstants.CENTER);
+			lblLogout.setForeground(Color.LIGHT_GRAY);
+			lblLogout.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+			lblLogout.setBounds(0, 603, 228, 118);
+			panel.add(lblLogout);
+			
+			lblIssuedBooks = new JLabel("Issue");
+			lblIssuedBooks.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			lblIssuedBooks.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					if(row>=0){
+					lblIssuedBooks.setForeground(new Color(255, 255, 0));
+					lblIssuedBooks.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(255, 255, 102), null, null, null));
+					}
+					}
+				
+				@Override
+				public void mouseExited(MouseEvent e) {
+					lblIssuedBooks.setForeground(new Color(204, 204, 204));
+					lblIssuedBooks.setBorder(null);
+				}
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					
+					 
+					if(row>=0){
+						label_1.setEnabled(false);
+						BookIssue d=new BookIssue();
+					}
+				}
+			});
+			
+			lblIssuedBooks.setIcon(new ImageIcon("issue.png"));
+			lblIssuedBooks.setHorizontalAlignment(SwingConstants.CENTER);
+			lblIssuedBooks.setForeground(Color.LIGHT_GRAY);
+			lblIssuedBooks.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+			lblIssuedBooks.setBounds(0, 234, 228, 118);
+			panel.add(lblIssuedBooks);
+			
+			label_1 = new JLabel("Edit");
+			label_1.setBackground(new Color(204, 255, 153));
+			label_1.setForeground(Color.RED);
+			label_1.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			label_1.setEnabled(true);
+			
+				label_1.addMouseListener(new MouseAdapter() {
+					
+					
+					public void mouseClicked(MouseEvent arg0) {
+						if(Table.getRow()>=0){
+							label_1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+							label_1.setEnabled(false);
+							EditBook d=new EditBook();
+						}
+						
+						
+					}
+					@Override
+					public void mouseEntered(MouseEvent e) { // ¬Œ“ «ƒ≈—‹ ÷¬≈“ ›ƒ»“¿
+						
+							if(row>=0){
+						label_1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+						label_1.setForeground(new Color(255, 255, 0));
+						//label_1.setOpaque(true);
+						label_1.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(255, 255, 102), null, null, null));}
+					}
+					@Override
+					public void mouseExited(MouseEvent e) {
+						if(row>=0){
+							label_1.setOpaque(false);
+						label_1.setForeground(new Color(204, 204, 204));
+						label_1.setBorder(null);}
+					}
+				});
+				
+						label_1.setHorizontalAlignment(SwingConstants.CENTER);
+						label_1.setIcon(new ImageIcon("icons\\edit-24.png"));
+						label_1.setForeground(Color.LIGHT_GRAY);
+						label_1.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+						label_1.setBounds(0, 117, 228, 118);
+						panel.add(label_1);
+						
+						lblBookList = new JLabel("Add Book");
+						lblBookList.addMouseListener(new MouseAdapter() {
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								lblBookList.setForeground(new Color(255, 255, 0));
+								BookAdder adder = new BookAdder();
+								Table.buildTable();
+								Table.table.setModel(Table.Tablemodel);	
+								Table.getTable();
+							}
+							@Override
+							public void mouseEntered(MouseEvent e) {
+								lblBookList.setForeground(new Color(255, 255, 0));
+								lblBookList.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(255, 255, 102), null, null, null));
+							}
+							
+							@Override
+							public void mouseExited(MouseEvent e) {
+								lblBookList.setForeground(new Color(204, 204, 204));
+								lblBookList.setBorder(null);
+							}
+						});
+						
+						lblBookList.setForeground(new Color(204, 204, 204));
+						lblBookList.setHorizontalAlignment(SwingConstants.CENTER);
+						lblBookList.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+						lblBookList.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+						lblBookList.setIcon(new ImageIcon("booklist.png"));
+						lblBookList.setBounds(0, 0, 228, 118);
+						panel.add(lblBookList);
+						
+						JLabel label = new JLabel();
+						label.setIcon(new ImageIcon("librarian.png"));
+						label.setBounds(46, 38, 142, 128);
+						panel.add(label);
+						
+						 lblReturn = new JLabel("Delete");
+						lblReturn.addMouseListener(new MouseAdapter() {
+							@Override
+							public void mouseEntered(MouseEvent e) {
+								lblReturn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+								lblReturn.setForeground(new Color(255, 255, 0));
+								lblReturn.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(255, 255, 102), null, null, null));
+							}
+							@Override
+							public void mouseExited(MouseEvent e) {
+								lblReturn.setForeground(new Color(204, 204, 204));
+								lblReturn.setBorder(null);
+							}
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								if(row>=0){
+									label_1.setEnabled(false);
+									//BookDelete d=new BookDelete();
+								}
+							}
+						});
+						lblReturn.setIcon(new ImageIcon("icons\\delete-24.png"));
+						lblReturn.setHorizontalAlignment(SwingConstants.CENTER);
+						lblReturn.setForeground(Color.LIGHT_GRAY);
+						lblReturn.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+						lblReturn.setBounds(0, 353, 228, 118);
+						panel.add(lblReturn);
+						
+						 lblReset = new JLabel("Reset");
+						lblReset.addMouseListener(new MouseAdapter() {
+							@Override
+							public void mouseEntered(MouseEvent e) {
+								lblReset.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+								lblReset.setForeground(new Color(255, 255, 0));
+								lblReset.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(255, 255, 102), null, null, null));
+							}
+							@Override
+							public void mouseExited(MouseEvent e) {
+								lblReset.setForeground(new Color(204, 204, 204));
+								lblReset.setBorder(null);
+							}
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								/*frame_bl.setVisible(false);
+								BookList back=new BookList(); */
+								Table.table.clearSelection();
+								Table.table.repaint();//ŒÕ Ã≈Õﬂ Õ¿œ–ﬂ√¿≈“: “ŒÀ‹ Œ “›…¡À –≈—≈“»“
+								
+							}
+						});
+						lblReset.setIcon(new ImageIcon("icons\\undo-4-24.png"));
+						lblReset.setHorizontalAlignment(SwingConstants.CENTER);
+						lblReset.setForeground(Color.LIGHT_GRAY);
+						lblReset.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+						lblReset.setBounds(0, 474, 228, 118);
+						panel.add(lblReset);
+			if(index==0){
+			txtSearchFor.setText("Choose how you search");
+			  } 
+			txtSearchFor.addFocusListener(new FocusHandler());
+			
+		
+			
+			Books.All_info_Book.clear();
+			
+			
+			
+		}
+		 public static void update()
+		    {
+		       frame_bl.dispose();
+		       //tes ap = new tes();
+		    }
+		 
+		 public void setFrame(JFrame frame_bl) {
+				this.frame_bl = frame_bl;
+			}
+
+
+			public JFrame getFrame() {
+				return frame_bl;
+			}
+			
+			
+			
+	class FocusHandler implements FocusListener{
+	    
+	    
+	    public void focusLost(FocusEvent fe)
+	    {
+	        if((txtSearchFor.getText()).equals("")){
+	        	txtSearchFor.setText("Ex: Java");
+	        	txtSearchFor.setForeground(Color.GRAY);
+	            }  
+	    }
+	@Override
+	public void focusGained(FocusEvent e) {            
+	         if((txtSearchFor.getText()).equals("Ex: Java")){
+	        	 txtSearchFor.setText("");
+	        	 txtSearchFor.setForeground(Color.BLACK);
+	         }		
+	}
+	}
+	/*int getRow(){
+	return	(DefaultTableModel)Table.table.getModel().getDataVector().elementAt(jTable.getSelectedRow());
+	}*/
+	}
