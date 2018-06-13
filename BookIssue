@@ -1,0 +1,268 @@
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import java.awt.Panel;
+import java.awt.Color;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
+import java.awt.Font;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class BookIssue {
+
+	private JFrame frame;
+	private JTextField txtEnterIdOf;
+	private JTextField textField_1;
+	private JTextField textField_2;
+	JLabel lblNewLabel_1;
+	
+	String isbnt;
+	int stockt;
+	private JTextField textField_3;
+
+	
+
+	/**
+	 * Launch the application.
+	 */
+	/*public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					BookIssue window = new BookIssue();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}*/
+
+	/**
+	 * Create the application.
+	 */
+	public BookIssue() {
+		initialize();
+		frame.setVisible(true);
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(new Color(229,252,194));
+		frame.setBounds(100, 100, 565, 423);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		String dueto = "20/04/2018";
+		final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		final Date date = new Date();
+		Calendar c = Calendar.getInstance();
+		try {
+			c.setTime(dateFormat.parse(dueto));
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+		}
+		c.add(Calendar.DATE, 14);
+		dueto = dateFormat.format(c.getTime());
+		final String due_to = dueto;
+
+		
+	  //  int row= Table.getRow(); //selected row 
+	    BookList a=new BookList();
+	    
+
+	    isbnt=Books.All_info_Book.get( BookList.row*7+3);
+	    stockt= Integer.parseInt(Books.All_info_Book.get(  BookList.row*7+6)); //WRAPPER CLASS
+
+		
+		Panel panel = new Panel();
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+			}
+		});
+		panel.setBackground(new Color(153, 153, 153));
+		panel.setBounds(205, 317, 130, 30);
+		frame.getContentPane().add(panel);
+		panel.setLayout(null);
+		
+		 lblNewLabel_1 = new JLabel("Issue");
+		lblNewLabel_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				lblNewLabel_1.setForeground(new Color(255, 255, 0));
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				lblNewLabel_1.setForeground(new Color(0, 0, 0));
+			}
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String studentID = txtEnterIdOf.getText().trim();
+			if(stockt>0) {
+            try { BookList a=new BookList();
+   	
+            
+            	
+            	//Books.writeNewStock(Integer.toString(stock),   row);
+            	// in  rowow= Table.getRow(); //selected row 
+      		   
+            	String authort=Books.All_info_Book.get(  BookList.row*7);
+   			  	String bookt=Books.All_info_Book.get(  BookList.row*7+1);
+   			  	String yeart=Books.All_info_Book.get(  BookList.row*7+2);
+   			  	isbnt=Books.All_info_Book.get(  BookList.row*7+3);
+   			  	String publisht=Books.All_info_Book.get(  BookList.row*7+4);
+   			  	String lcct=Books.All_info_Book.get(  BookList.row*7+5);
+   			  	int stock= stockt-1;
+   			  	String[] edited ={authort, bookt,yeart,isbnt,publisht,lcct,Integer.toString(stock)};
+				if(EditBook.checEdit(  BookList.row,  edited )){
+					for(int i=0;i<7;i++){
+						Books.All_info_Book.set(  BookList.row*7+i, edited[i]);}
+					JOptionPane.showMessageDialog(null, "success ");
+					Books.writetotxt();  //rewrite everythong frm arraylist
+					//frame.setVisible(false);
+					//BookList h = new BookList();					
+				}
+				BookManipulate.issue(isbnt, studentID, dateFormat.format(date), due_to);
+				frame.setVisible(false);
+				//JOptionPane.showMessageDialog(null, "success ");
+				//BookList h = new BookList();
+				Table.table.invalidate(); 
+				
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "No available copies");
+				}
+			}
+			
+		});
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1.setFont(new Font("Century Gothic", Font.PLAIN, 17));
+		lblNewLabel_1.setBounds(0, 0, 130, 30);
+		panel.add(lblNewLabel_1);
+		
+		JLabel issue = new JLabel("Book Issue");
+		issue.setFont(new Font("Century Gothic", Font.PLAIN, 20));
+		issue.setBounds(216, 22, 139, 44);
+		frame.getContentPane().add(issue);
+		
+		JLabel lblNewLabel = new JLabel("Student ID");
+		lblNewLabel.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+		lblNewLabel.setBounds(61, 80, 125, 37);
+		frame.getContentPane().add(lblNewLabel);
+		
+		JLabel lblIsbn = new JLabel("ISBN");
+		lblIsbn.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+		lblIsbn.setBounds(61, 134, 125, 37);
+		frame.getContentPane().add(lblIsbn);
+		
+		JLabel lblIssuedDate = new JLabel("Issued Date");
+		lblIssuedDate.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+		lblIssuedDate.setBounds(61, 193, 125, 37);
+		frame.getContentPane().add(lblIssuedDate);
+		
+		JSeparator separator = new JSeparator();
+		separator.setForeground(Color.BLACK);
+		separator.setBackground(Color.WHITE);
+		separator.setBounds(196, 110, 318, 19);
+		frame.getContentPane().add(separator);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setForeground(Color.BLACK);
+		separator_1.setBackground(Color.WHITE);
+		separator_1.setBounds(196, 164, 318, 19);
+		frame.getContentPane().add(separator_1);
+		
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setForeground(Color.BLACK);
+		separator_2.setBackground(Color.WHITE);
+		separator_2.setBounds(196, 218, 318, 19);
+		frame.getContentPane().add(separator_2);
+		
+		txtEnterIdOf = new JTextField();
+		txtEnterIdOf.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				txtEnterIdOf.setText("");
+			}
+		});
+		txtEnterIdOf.setText("Enter ID of the Student\r\n");
+		txtEnterIdOf.setOpaque(false);
+		txtEnterIdOf.setForeground(Color.GRAY);
+		txtEnterIdOf.setFont(new Font("Century Gothic", Font.PLAIN, 15));
+		txtEnterIdOf.setColumns(10);
+		txtEnterIdOf.setBorder(null);
+		txtEnterIdOf.setBounds(196, 69, 318, 44);
+		frame.getContentPane().add(txtEnterIdOf);
+		
+		textField_1 = new JTextField();
+		textField_1.setEditable(false);
+		textField_1.setText(isbnt);
+		textField_1.setOpaque(false);
+		textField_1.setForeground(Color.GRAY);
+		textField_1.setFont(new Font("Century Gothic", Font.PLAIN, 15));
+		textField_1.setColumns(10);
+		textField_1.setBorder(null);
+		textField_1.setBounds(196, 127, 318, 44);
+		frame.getContentPane().add(textField_1);
+		
+		textField_2 = new JTextField();
+		textField_2.setEditable(false);
+		textField_2.setText(dateFormat.format(date));
+		textField_2.setOpaque(false);
+		textField_2.setForeground(Color.GRAY);
+		textField_2.setFont(new Font("Century Gothic", Font.PLAIN, 15));
+		textField_2.setColumns(10);
+		textField_2.setBorder(null);
+		textField_2.setBounds(196, 182, 318, 44);
+		frame.getContentPane().add(textField_2);
+		
+		JLabel lblDueToDate = new JLabel("Due to Date");
+		lblDueToDate.setFont(new Font("Century Gothic", Font.PLAIN, 16));
+		lblDueToDate.setBounds(61, 255, 125, 37);
+		frame.getContentPane().add(lblDueToDate);
+		
+		textField_3 = new JTextField();
+		textField_3.setText(dueto);
+		textField_3.setOpaque(false);
+		textField_3.setForeground(Color.GRAY);
+		textField_3.setFont(new Font("Century Gothic", Font.PLAIN, 15));
+		textField_3.setEditable(false);
+		textField_3.setColumns(10);
+		textField_3.setBorder(null);
+		textField_3.setBounds(196, 248, 318, 44);
+		frame.getContentPane().add(textField_3);
+		
+		JSeparator separator_3 = new JSeparator();
+		separator_3.setForeground(Color.BLACK);
+		separator_3.setBackground(Color.WHITE);
+		separator_3.setBounds(196, 283, 318, 19);
+		frame.getContentPane().add(separator_3);
+		
+	}
+	
+}
